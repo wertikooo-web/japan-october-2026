@@ -1,0 +1,36 @@
+name: Organizer video fix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/organizer-video-fix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace organizer image with video
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<img class="organizer-photo" src="assets/alexei-ivantov-manga.webp" alt="Alexei Ivantov" width="900" height="900">'
+          new = '<video class="organizer-photo" autoplay muted loop playsinline preload="auto" aria-label="Alexei Ivantov"><source src="assets/organizer-alexei.mp4?v=20260810" type="video/mp4"></video>'
+          if old not in s:
+              raise SystemExit('Organizer image markup not found')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Show video in organizer card'
+          git push
