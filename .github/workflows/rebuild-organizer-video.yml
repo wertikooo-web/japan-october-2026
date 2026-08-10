@@ -1,0 +1,42 @@
+name: Rebuild organizer video
+
+on:
+  push:
+    paths:
+      - '.video_hq/**'
+      - '.github/workflows/rebuild-organizer-video.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Rebuild full MP4
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .video_hq/*.txt | tr -d '\n\r ' | base64 -d > assets/organizer-alexei.mp4
+          bytes=$(wc -c < assets/organizer-alexei.mp4)
+          echo "video bytes=$bytes"
+          test "$bytes" -gt 500000
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('assets/organizer-alexei.mp4?v=20260810','assets/organizer-alexei.mp4?v=20260810-hq3')
+          s='\n'.join(line for line in s.splitlines() if 'organizer-video-loader.js' not in line)+'\n'
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit rebuilt video
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/organizer-alexei.mp4 index.html
+          git commit -m 'Install full-quality organizer video'
+          git push origin main
