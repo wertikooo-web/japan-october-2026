@@ -21,7 +21,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .video_hq/*.txt | tr -d '\n\r ' | base64 -d > assets/organizer-alexei.mp4
+          cat .video_hq/0*.txt > assets/organizer-alexei.mp4
           bytes=$(wc -c < assets/organizer-alexei.mp4)
           echo "video bytes=$bytes"
           test "$bytes" -gt 500000
