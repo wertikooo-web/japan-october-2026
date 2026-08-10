@@ -1,0 +1,1 @@
+Organizer video is rebuilt by GitHub Actions from ordered base64 chunks stored in this directory.
