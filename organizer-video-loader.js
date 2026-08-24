@@ -1,5 +1,8 @@
 (function(){
   try {
+    const price=document.querySelector('.tour-price strong');
+    if(price) price.textContent='2880 EURO';
+
     const src='assets/organizer-alexei.mp4?v=20260810-hq3';
     const video=document.querySelector('#organizer video.organizer-photo, #organizer .organizer-profile video');
     if(!video) return;
